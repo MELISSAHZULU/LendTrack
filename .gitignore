@@ -1,0 +1,101 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.log
+*.pot
+*.pyc
+*.pyo
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pid
+db.sqlite3
+media/
+staticfiles/
+.DS_Store
+.coverage
+*.mo
+*.orig
+
+# Flutter
+*.pem
+*.pub
+*.lock
+*.log
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+.DS_Store
+/coverage/
+/build/
+/l10n/
+/.dart_tool/
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/.packages
+/pubspec.lock
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+*.iml
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Android
+*.iml
+.gradle/
+local.properties
+/.idea/
+
+# iOS
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+*.xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData/
+.idea/
+.hg/
+.svn/
+
+# Windows
+Thumbs.db
+*.exe
+*.dll
+*.pdb
+*.exp
+*.lib
+*.ilk
+*.log
+*.obj
+*.pch
+*.tlb
+*.tlh
+*.tmp
+
+# Web
+*.tmp
+*.temp
+*.log
+.DS_Store

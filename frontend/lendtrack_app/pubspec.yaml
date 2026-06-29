@@ -1,0 +1,61 @@
+name: lendtrack_app
+description: A loan management app for LendTrack
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  riverpod: ^2.5.1
+  flutter_riverpod: ^2.5.1
+
+  # Routing
+  go_router: ^13.0.0
+
+  # Networking
+  dio: ^5.4.0
+  dio_smart_retry: ^5.0.0
+  pretty_dio_logger: ^1.3.1
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
+
+  # UI Components
+  dotted_border: ^2.1.0
+  fl_chart: ^0.67.0
+  intl: ^0.19.0
+  url_launcher: ^6.2.1
+  google_fonts: ^6.1.0
+
+  # Media & Files
+  image_picker: ^1.0.7
+  file_picker: ^6.1.1
+  permission_handler: ^11.0.1
+
+  # Forms (use manual validation instead)
+  flutter_form_builder: ^9.2.1
+
+  # Biometrics
+  local_auth: ^2.1.8
+
+  # Utilities
+  equatable: ^2.0.5
+  get_it: ^7.6.7
+  logger: ^2.0.2+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/fonts/
