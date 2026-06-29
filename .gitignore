@@ -13,6 +13,14 @@ venv.bak/
 *.pot
 *.pyc
 *.pyo
+*.pid
+db.sqlite3
+media/
+staticfiles/
+.DS_Store
+.coverage
+*.mo
+*.orig
 
 # Django
 *.log
@@ -23,10 +31,6 @@ venv.bak/
 db.sqlite3
 media/
 staticfiles/
-.DS_Store
-.coverage
-*.mo
-*.orig
 
 # Flutter
 *.pem
@@ -99,3 +103,9 @@ Thumbs.db
 *.temp
 *.log
 .DS_Store
+
+# Node modules (if any)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
