@@ -7,6 +7,4 @@ urlpatterns = [
     path('api/borrowers/', include('apps.borrowers.urls')),
     path('api/loans/', include('apps.loans.urls')),
     path('api/payments/', include('apps.payments.urls')),
-    path('api/recovery/', include('apps.recovery.urls')),
-    path('api/reports/', include('apps.reports.urls')),
 ]

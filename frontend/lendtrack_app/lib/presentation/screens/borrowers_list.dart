@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lendtrack_app/core/navigation/navigation_helper.dart';
 import 'package:lendtrack_app/data/providers/borrower_provider.dart';
-import 'package:lendtrack_app/presentation/screens/add_borrower.dart';
-import 'package:lendtrack_app/presentation/screens/borrower_profile.dart';
 
 class BorrowersListScreen extends ConsumerStatefulWidget {
   const BorrowersListScreen({super.key});
@@ -13,16 +12,20 @@ class BorrowersListScreen extends ConsumerStatefulWidget {
 
 class _BorrowersListScreenState extends ConsumerState<BorrowersListScreen> {
   String _searchQuery = '';
-  String _selectedFilter = 'All';
-
-  final List<String> _filters = ['All', 'Active', 'Overdue', 'Completed'];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(borrowerProvider.notifier).loadBorrowers();
+      _loadBorrowers();
     });
+  }
+
+  Future<void> _loadBorrowers() async {
+    setState(() => _isLoading = true);
+    await ref.read(borrowerProvider.notifier).loadBorrowers();
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
@@ -36,17 +39,16 @@ class _BorrowersListScreenState extends ConsumerState<BorrowersListScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: NavigationHelper.goBack,
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadBorrowers,
+          ),
+          IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddBorrowerScreen()),
-              );
-            },
+            onPressed: NavigationHelper.goToAddBorrower,
           ),
         ],
         bottom: PreferredSize(
@@ -71,64 +73,42 @@ class _BorrowersListScreenState extends ConsumerState<BorrowersListScreen> {
           ),
         ),
       ),
-      body: borrowers.isEmpty
-          ? const Center(
-              child: Text('No borrowers found. Add your first borrower!'),
-            )
-          : Column(
-              children: [
-                // Filter chips
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: SizedBox(
-                    height: 36,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _filters.length,
-                      itemBuilder: (context, index) {
-                        final filter = _filters[index];
-                        final isSelected = _selectedFilter == filter;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(
-                              filter,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                color: isSelected ? Colors.white : Colors.grey.shade700,
-                              ),
-                            ),
-                            selected: isSelected,
-                            onSelected: (selected) => setState(() => _selectedFilter = filter),
-                            backgroundColor: Colors.grey.shade100,
-                            selectedColor: Colors.blue,
-                            checkmarkColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const Divider(height: 1),
-
-                // Borrower list
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: () => ref.read(borrowerProvider.notifier).loadBorrowers(),
-                    child: ListView.builder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadBorrowers,
+              child: borrowers.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text('No borrowers yet', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                          SizedBox(height: 8),
+                          Text('Tap + to add your first borrower', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       itemCount: borrowers.length,
                       itemBuilder: (context, index) {
                         final borrower = borrowers[index];
+                        
+                        if (_searchQuery.isNotEmpty &&
+                            !borrower.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+                            !borrower.phone.contains(_searchQuery)) {
+                          return const SizedBox.shrink();
+                        }
+                        
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: Colors.blue.shade100,
                               child: Text(
-                                borrower.fullName[0],
+                                borrower.fullName.isNotEmpty ? borrower.fullName[0].toUpperCase() : '?',
                                 style: TextStyle(
                                   color: Colors.blue.shade700,
                                   fontWeight: FontWeight.bold,
@@ -147,51 +127,49 @@ class _BorrowersListScreenState extends ConsumerState<BorrowersListScreen> {
                                   borrower.phone,
                                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                                 ),
-                                Text(
-                                  'Verified: ${borrower.isVerified ? "Yes" : "No"}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: borrower.isVerified ? Colors.green : Colors.orange,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: borrower.isActive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    borrower.isActive ? 'Active' : 'Inactive',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: borrower.isActive ? Colors.green : Colors.red,
-                                      fontWeight: FontWeight.w500,
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: borrower.statusColor.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        borrower.statusDisplay,
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: borrower.statusColor,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(width: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: borrower.isActive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        borrower.isActive ? 'Active' : 'Inactive',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: borrower.isActive ? Colors.green : Colors.red,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BorrowerProfileScreen(borrowerId: borrower.id),
-                                ),
-                              );
-                            },
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => NavigationHelper.goToBorrowerProfile(borrower.id),
                           ),
                         );
                       },
                     ),
-                  ),
-                ),
-              ],
             ),
     );
   }

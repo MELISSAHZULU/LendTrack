@@ -51,7 +51,7 @@ class ApiService {
     } catch (e) {
       // Fall through to mock data
     }
-    // Return mock data if backend not ready
+    // Mock data if backend not ready
     return {
       'total_disbursed': 3250000,
       'total_repaid': 2440000,
@@ -70,57 +70,39 @@ class ApiService {
         headers: await _getHeaders(),
       );
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final data = jsonDecode(response.body);
+        print('✅ Loaded ${data.length} borrowers');
+        return data;
+      } else {
+        print('❌ Failed: ${response.statusCode}');
+        return [];
       }
     } catch (e) {
-      // Fall through to mock data
+      print('❌ Error: $e');
+      return [];
     }
-    // Mock data
-    return [
-      {
-        'id': 1,
-        'full_name': 'Chisomo Banda',
-        'phone': '+265 999 000 000',
-        'email': 'chisomo@email.com',
-        'address': 'Area 12, Lilongwe',
-        'is_verified': true,
-        'is_active': true,
-        'created_at': '2024-01-15',
-      },
-      {
-        'id': 2,
-        'full_name': 'Thandiwe Phiri',
-        'phone': '+265 888 000 000',
-        'email': 'thandiwe@email.com',
-        'address': 'Area 25, Lilongwe',
-        'is_verified': true,
-        'is_active': true,
-        'created_at': '2024-02-20',
-      },
-    ];
   }
 
   Future<Map<String, dynamic>> createBorrower(Map<String, dynamic> data) async {
     try {
+      print('📝 Creating: ${data['full_name']}');
       final response = await http.post(
         Uri.parse('$baseUrl/borrowers/'),
         headers: await _getHeaders(),
         body: jsonEncode(data),
       );
+      
       if (response.statusCode == 201) {
-        return jsonDecode(response.body);
+        final result = jsonDecode(response.body);
+        print('✅ Created!');
+        return result;
+      } else {
+        throw Exception('Failed: ${response.body}');
       }
     } catch (e) {
-      // Return mock response
-      return {
-        ...data,
-        'id': DateTime.now().millisecondsSinceEpoch,
-        'is_verified': false,
-        'is_active': true,
-        'created_at': DateTime.now().toIso8601String(),
-      };
+      print('❌ Error: $e');
+      rethrow;
     }
-    throw Exception('Failed to create borrower');
   }
 
   // ============ LOANS ============
@@ -136,6 +118,7 @@ class ApiService {
     } catch (e) {
       // Fall through to mock data
     }
+    // Mock data
     return [
       {
         'id': 1,
@@ -177,6 +160,7 @@ class ApiService {
         return jsonDecode(response.body);
       }
     } catch (e) {
+      // Return mock response
       return {
         ...data,
         'id': DateTime.now().millisecondsSinceEpoch,

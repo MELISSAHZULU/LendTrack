@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lendtrack_app/core/navigation/navigation_helper.dart';
 import 'package:lendtrack_app/data/providers/dashboard_provider.dart';
 import 'package:lendtrack_app/data/providers/borrower_provider.dart';
 import 'package:lendtrack_app/presentation/screens/auth/login_screen.dart';
-import 'package:lendtrack_app/presentation/screens/borrowers_list.dart';
-import 'package:lendtrack_app/presentation/screens/add_borrower.dart';
-import 'package:lendtrack_app/presentation/screens/loan_applications.dart';
-import 'package:lendtrack_app/presentation/screens/disburse_loan.dart';
-import 'package:lendtrack_app/presentation/screens/request_repayment.dart';
-import 'package:lendtrack_app/presentation/screens/transaction_history.dart';
-import 'package:lendtrack_app/presentation/screens/settings.dart';
-import 'package:lendtrack_app/presentation/screens/notifications.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -42,12 +35,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationsScreen()),
-              );
-            },
+            onPressed: NavigationHelper.goToNotifications,
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -139,30 +127,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     Icons.person_add,
                     'Add Borrower',
                     Colors.blue,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddBorrowerScreen()),
-                    ),
+                    NavigationHelper.goToAddBorrower,
                   ),
                   const SizedBox(width: 12),
                   _buildQuickAction(
                     Icons.people,
                     'Borrowers',
                     Colors.purple,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => BorrowersListScreen()),
-                    ),
+                    NavigationHelper.goToBorrowers,
                   ),
                   const SizedBox(width: 12),
                   _buildQuickAction(
                     Icons.assignment,
                     'Applications',
                     Colors.orange,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoanApplicationsScreen()),
-                    ),
+                    NavigationHelper.goToLoanApplications,
                   ),
                 ],
               ),
@@ -173,30 +152,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     Icons.send,
                     'Disburse',
                     Colors.green,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => DisburseLoanScreen()),
-                    ),
+                    NavigationHelper.goToDisburse,
                   ),
                   const SizedBox(width: 12),
                   _buildQuickAction(
                     Icons.payment,
                     'Repayment',
                     Colors.cyan,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RequestRepaymentScreen()),
-                    ),
+                    NavigationHelper.goToRequestRepayment,
                   ),
                   const SizedBox(width: 12),
                   _buildQuickAction(
                     Icons.history,
                     'History',
                     Colors.indigo,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TransactionHistoryScreen()),
-                    ),
+                    NavigationHelper.goToTransactionHistory,
                   ),
                 ],
               ),
@@ -211,12 +181,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => BorrowersListScreen()),
-                      );
-                    },
+                    onPressed: NavigationHelper.goToBorrowers,
                     child: const Text('View All'),
                   ),
                 ],
@@ -267,28 +232,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Icons.people,
                       'Borrowers',
                       false,
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => BorrowersListScreen()),
-                      ),
+                      NavigationHelper.goToBorrowers,
                     ),
                     _buildNavItem(
                       Icons.assignment,
                       'Loans',
                       false,
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoanApplicationsScreen()),
-                      ),
+                      NavigationHelper.goToLoanApplications,
                     ),
                     _buildNavItem(
                       Icons.settings,
                       'Settings',
                       false,
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SettingsScreen()),
-                      ),
+                      NavigationHelper.goToSettings,
                     ),
                   ],
                 ),
@@ -378,6 +334,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             style: TextStyle(fontSize: 9, color: borrower.isActive ? Colors.green : Colors.red),
           ),
         ),
+        onTap: () => NavigationHelper.goToBorrowerProfile(borrower.id),
       ),
     );
   }
