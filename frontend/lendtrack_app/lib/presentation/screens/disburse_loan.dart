@@ -16,7 +16,7 @@ class DisburseLoanScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Disburse Loan Screen - Coming Soon'),
+        child: Text('Disburse Loan - Coming Soon'),
       ),
     );
   }

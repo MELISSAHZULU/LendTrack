@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BorrowerProfileScreen extends StatelessWidget {
-  const BorrowerProfileScreen({super.key});
+  final int borrowerId;
+  const BorrowerProfileScreen({super.key, required this.borrowerId});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +16,8 @@ class BorrowerProfileScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: const Center(
-        child: Text('Borrower Profile Screen - Coming Soon'),
+      body: Center(
+        child: Text('Borrower Profile - ID: $borrowerId'),
       ),
     );
   }

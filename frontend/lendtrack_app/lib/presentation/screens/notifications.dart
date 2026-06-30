@@ -16,7 +16,7 @@ class NotificationsScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Notifications Screen - Coming Soon'),
+        child: Text('Notifications - Coming Soon'),
       ),
     );
   }

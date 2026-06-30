@@ -16,7 +16,7 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Settings Screen - Coming Soon'),
+        child: Text('Settings - Coming Soon'),
       ),
     );
   }

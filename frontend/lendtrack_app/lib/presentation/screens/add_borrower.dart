@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lendtrack_app/data/providers/borrower_provider.dart';
+import 'package:lendtrack_app/data/models/borrower.dart';
 
-class AddBorrowerScreen extends StatefulWidget {
+class AddBorrowerScreen extends ConsumerStatefulWidget {
   const AddBorrowerScreen({super.key});
 
   @override
-  State<AddBorrowerScreen> createState() => _AddBorrowerScreenState();
+  ConsumerState<AddBorrowerScreen> createState() => _AddBorrowerScreenState();
 }
 
-class _AddBorrowerScreenState extends State<AddBorrowerScreen> {
+class _AddBorrowerScreenState extends ConsumerState<AddBorrowerScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -15,25 +18,44 @@ class _AddBorrowerScreenState extends State<AddBorrowerScreen> {
   final _addressController = TextEditingController();
   bool _isLoading = false;
 
-  void _saveBorrower() {
+  Future<void> _saveBorrower() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
-    
-    // Simulate saving
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => _isLoading = false);
-      
+
+    final borrower = Borrower(
+      id: 0,
+      fullName: _nameController.text,
+      phone: _phoneController.text,
+      email: _emailController.text,
+      address: _addressController.text,
+      isVerified: false,
+      isActive: true,
+    );
+
+    try {
+      await ref.read(borrowerProvider.notifier).addBorrower(borrower);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Borrower added successfully!'),
+            content: Text('✅ Borrower added successfully!'),
             backgroundColor: Colors.green,
           ),
         );
         Navigator.pop(context);
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -43,6 +65,16 @@ class _AddBorrowerScreenState extends State<AddBorrowerScreen> {
         title: const Text('Add Borrower'),
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _isLoading ? null : _saveBorrower,
+            child: const Text('Save'),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -50,48 +82,15 @@ class _AddBorrowerScreenState extends State<AddBorrowerScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Profile Photo
+              const SizedBox(height: 20),
               Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey.shade200,
-                      child: const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 32,
-                            minHeight: 32,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.blue.shade100,
+                  child: const Icon(Icons.person, size: 50, color: Colors.blue),
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Full Name
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -99,16 +98,9 @@ class _AddBorrowerScreenState extends State<AddBorrowerScreen> {
                   prefixIcon: Icon(Icons.person_outline),
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter full name';
-                  }
-                  return null;
-                },
+                validator: (v) => v?.isEmpty == true ? 'Please enter name' : null,
               ),
               const SizedBox(height: 16),
-
-              // Phone Number
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(
@@ -116,110 +108,43 @@ class _AddBorrowerScreenState extends State<AddBorrowerScreen> {
                   prefixIcon: Icon(Icons.phone_outlined),
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter phone number';
-                  }
-                  return null;
-                },
+                validator: (v) => v?.isEmpty == true ? 'Please enter phone' : null,
               ),
               const SizedBox(height: 16),
-
-              // Email
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Email Address',
+                  labelText: 'Email Address *',
                   prefixIcon: Icon(Icons.email_outlined),
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                  }
+                validator: (v) {
+                  if (v?.isEmpty == true) return 'Please enter email';
+                  if (!v!.contains('@')) return 'Invalid email';
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-
-              // Address
               TextFormField(
                 controller: _addressController,
                 decoration: const InputDecoration(
-                  labelText: 'Home Address',
+                  labelText: 'Address',
                   prefixIcon: Icon(Icons.home_outlined),
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
               const SizedBox(height: 24),
-
-              // Info note
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _saveBorrower,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  child: _isLoading
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Create Account', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.blue.shade700),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'The borrower will receive an invitation email with login credentials.',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _saveBorrower,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Create Account',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),

@@ -16,7 +16,7 @@ class RequestRepaymentScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Request Repayment Screen - Coming Soon'),
+        child: Text('Request Repayment - Coming Soon'),
       ),
     );
   }

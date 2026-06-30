@@ -4,7 +4,7 @@ class LoanApplicationsScreen extends StatelessWidget {
   const LoanApplicationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Loan Applications'),
@@ -16,7 +16,7 @@ class LoanApplicationsScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Loan Applications Screen - Coming Soon'),
+        child: Text('Loan Applications - Coming Soon'),
       ),
     );
   }

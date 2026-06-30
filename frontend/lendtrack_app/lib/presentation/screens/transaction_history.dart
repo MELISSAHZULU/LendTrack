@@ -16,7 +16,7 @@ class TransactionHistoryScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Transaction History Screen - Coming Soon'),
+        child: Text('Transaction History - Coming Soon'),
       ),
     );
   }
